@@ -1,0 +1,4 @@
+content_dir:D:\Projects\Neural Style Transfer\content_data
+style_dir:D:\Projects\Neural Style Transfer\style_data
+vgg:D:\Projects\Neural Style Transfer\vgg_normalised.pth
+experiment:experiment1
