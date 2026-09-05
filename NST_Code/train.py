@@ -13,6 +13,14 @@ def parse_arguments():
                             help='Location of pre-trained VGG')
     parser.add_argument('--experiment',type=str,default=r'experiment1',
                             help='Name of experiment')
+    parser.add_argument('--final_size',type=int,default=512,
+                                help='Size of final image')
+    parser.add_argument('--content_size',type=int,default=265,
+                                help='Size of content image')
+    parser.add_argument('--style_size',type=int,default=256,
+                                help='Size of style image')
+    parser.add_argument('--crop',action='store_true',default=True,
+                                help='Crop Image')
 
 
     return parser.parse_args()
@@ -29,7 +37,7 @@ def main():
             args_file.write(f'{key}:{value}\n')
 
 
-    content_transform=None
+    content_transform=get_transform()
     style_transform=None
 
 
