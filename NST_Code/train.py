@@ -1,5 +1,6 @@
 import argparse
 import torch
+from torch.utils.data import DataLoader
 from pathlib import Path
 from utils.utils import *
 def parse_arguments():
@@ -21,6 +22,8 @@ def parse_arguments():
                                 help='Size of style image')
     parser.add_argument('--crop',action='store_true',default=True,
                                 help='Crop Image')
+    parser.add_argument('--batch_size', type=int, default=4,
+                        help='Batch size')
 
 
     return parser.parse_args()
@@ -37,13 +40,29 @@ def main():
             args_file.write(f'{key}:{value}\n')
 
 
-    content_transform=get_transform()
-    style_transform=None
+    content_transform=get_transform(args.content_size,args.crop,args.final_size)
+    style_transform=get_transform(args.style_size,args.crop,args.final_size)
 
 
 
     content_dataset=ImageFolderDataset(args.content_dir,content_transform)
-    style_dataset=ImageFolderDataset(args.content_dir,style_transform)
+    style_dataset=ImageFolderDataset(args.style_dir,style_transform)
+
+    content_dataloader=DataLoader(
+        content_dataset,
+        batch_size=args.batch_size,
+        shuffle=True,
+        pin_memory=True,
+        drop_last=True
+    )
+
+    style_dataloader=DataLoader(
+            style_dataset,
+            batch_size=args.batch_size,
+            shuffle=False,
+            pin_memory=True,
+            drop_last=True
+        )
 
 
 if __name__=='__main__':

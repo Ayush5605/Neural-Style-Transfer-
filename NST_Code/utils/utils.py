@@ -1,6 +1,7 @@
 from torch.utils.data import Dataset
 import os
 from PIL import Image
+from torchvision import transforms
 
 class ImageFolderDataset(Dataset):
     def __init__(self,root:str,transform=None):
@@ -19,6 +20,23 @@ class ImageFolderDataset(Dataset):
         image=Image.open(image_path)
 
         if self.tranform:
-            image=self.tranform(image)
+            image=self.transform(image)
 
         return image
+
+    def get_transform(size,crop,final_size):
+        transform_list=[]
+
+        if size>0:
+            transform_list.append(transforms.Resize(size))
+
+        if crop:
+            transform_list.append(transforms.RandomCrop(final_size))
+
+        else:
+            transform_list.append(transforms.Resize(final_size))
+
+        transform_list.append(transforms.ToTensor)
+        return transforms.Compose(transform_list)
+
+
