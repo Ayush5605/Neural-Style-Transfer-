@@ -6,11 +6,11 @@ from utils.utils import *
 def parse_arguments():
     parser=argparse.ArgumentParser()
 
-    parser.add_argument('--content_dir',type=str,default=r'D:\Projects\Neural Style Transfer\content_data',
+    parser.add_argument('--content_dir',type=str,default=r'D:\Projects\Neural Style Transfer\NST_Code\content_data',
                         help='Location of content dataset')
-    parser.add_argument('--style_dir',type=str,default=r'D:\Projects\Neural Style Transfer\style_data',
+    parser.add_argument('--style_dir',type=str,default=r'D:\Projects\Neural Style Transfer\NST_Code\style_data',
                             help='Location of style dataset')
-    parser.add_argument('--vgg',type=str,default=r'D:\Projects\Neural Style Transfer\vgg_normalised.pth',
+    parser.add_argument('--vgg',type=str,default=r'D:\Projects\Neural Style Transfer\NST_Code\vgg_normalised.pth',
                             help='Location of pre-trained VGG')
     parser.add_argument('--experiment',type=str,default=r'experiment1',
                             help='Name of experiment')
@@ -63,6 +63,12 @@ def main():
             pin_memory=True,
             drop_last=True
         )
+    print("Number of batches in content dataset:",len(content_dataloader))
+    print("Number of batches in style dataset:",len(style_dataloader))
+
+    for batch in style_dataloader:
+        print(batch.shape)
+
 
 
 if __name__=='__main__':

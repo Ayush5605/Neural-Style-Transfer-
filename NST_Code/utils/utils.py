@@ -7,24 +7,24 @@ class ImageFolderDataset(Dataset):
     def __init__(self,root:str,transform=None):
         super(ImageFolderDataset,self).__init__()
         self.root=root
-        self.tranform=transform
+        self.transform=transform
         self.files=list(os.listdir(root))
-        self.files=[p for p in self.files if p.endswith('.jpg','.png','.jpeg')]
+        self.files=[p for p in self.files if p.endswith(('.jpg','.png','.jpeg'))]
 
 
-    def _len_(self):
+    def __len__(self):
         return len(self.files)
 
-    def _getitem_(self,idx):
+    def __getitem__(self,idx):
         image_path=os.path.join(self.root,self.files[idx])
         image=Image.open(image_path)
 
-        if self.tranform:
+        if self.transform:
             image=self.transform(image)
 
         return image
 
-    def get_transform(size,crop,final_size):
+def get_transform(size,crop,final_size):
         transform_list=[]
 
         if size>0:
