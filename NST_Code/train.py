@@ -28,7 +28,7 @@ def parse_arguments():
                         help='Batch size')
     parser.add_argument('--lr',type=float,default=1e-4,
                         help='Learning rate')
-    parse.add_arguments('--lr_decay',type=float,default=5e-5,
+    parser.add_argument('--lr_decay',type=float,default=5e-5,
                         help="Learning rate decay")
 
 
@@ -80,6 +80,11 @@ def main():
         optimizer,
         lr_lambda=lambda epoch: 1.0/(1.0+args.lr_decay*epoch)
     )
+
+    print("Training...")
+
+
+    
     
 
    
