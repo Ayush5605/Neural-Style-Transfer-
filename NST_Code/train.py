@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 from pathlib import Path
 from utils.utils import *
 from utils.models import *
+import torch.optim as optim
 def parse_arguments():
     parser=argparse.ArgumentParser()
 
@@ -25,6 +26,10 @@ def parse_arguments():
                                 help='Crop Image')
     parser.add_argument('--batch_size', type=int, default=4,
                         help='Batch size')
+    parser.add_argument('--lr',type=float,default=1e-4,
+                        help='Learning rate')
+    parse.add_arguments('--lr_decay',type=float,default=5e-5,
+                        help="Learning rate decay")
 
 
     return parser.parse_args()
@@ -69,6 +74,13 @@ def main():
 
     encoder=VGGEncoder(args.vgg).to(device)
     decoder=Decoder().to(device)
+
+    optimizer=optim.Adam(decoder.parameters(),lr=args.lr)
+    scheduler=optim.lr_scheduler.LambdaLR(
+        optimizer,
+        lr_lambda=lambda epoch: 1.0/(1.0+args.lr_decay*epoch)
+    )
+    
 
    
 
