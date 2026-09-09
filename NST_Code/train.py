@@ -3,6 +3,7 @@ import torch
 from torch.utils.data import DataLoader
 from pathlib import Path
 from utils.utils import *
+from utils.models import *
 def parse_arguments():
     parser=argparse.ArgumentParser()
 
@@ -66,9 +67,10 @@ def main():
     print("Number of batches in content dataset:",len(content_dataloader))
     print("Number of batches in style dataset:",len(style_dataloader))
 
-    for batch in style_dataloader:
-        print(batch.shape)
+    encoder=VGGEncoder(args.vgg).to(device)
+    decoder=Decoder().to(device)
 
+   
 
 
 if __name__=='__main__':
