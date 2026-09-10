@@ -34,6 +34,10 @@ def parse_arguments():
                         help="Learning rate decay")
     parser.add_argument('--epoch',type=int,default=2,
                         help="Number of epochs")
+    parser.add_argument('--content_weight',type=float,default=1.0,
+                        help='Content Weight')
+    parser.add_argument('--style_weight',type=float,default=10,
+                        help='Style weight')
 
     return parser.parse_args()
 
@@ -104,10 +108,27 @@ def main():
             c_feats=encoder(content_batch)
             s_feats=encoder(style_batch)
 
-            print(len(c_feats))
-            print(len(s_feats))
+            t=adaptive_instance_normalization(c_feats[-1],s_feats[-1])
 
-            print(c_feats[0].shape)
+            g=decoder(t)
+
+            g_features=encoder(g)
+
+            loss_c=mse_loss(g_features[-1],t)*args.content_weight
+
+            loss_s=0
+            for g_f,s_f in zip(g_features,s_feats):
+                g_mean,g_std=calc_mean_std(g_f)
+                s_mean,s_std=calc_mean_std(s_f)
+
+                loss_s+=mse_loss(g_mean,s_mean)+mse_loss(g_std,s_std)
+
+            loss_s=loss_s*args.style_weight
+
+            loss=loss_c+loss_s
+
+            optimizer.zero_grad()
+            loss.backward()
 
 if __name__=='__main__':
     main()
