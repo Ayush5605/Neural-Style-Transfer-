@@ -38,6 +38,8 @@ def parse_arguments():
                         help='Content Weight')
     parser.add_argument('--style_weight',type=float,default=10,
                         help='Style weight')
+    parser.add_argument('--log_interval', type=int, default=1,
+                        help='Log interval')
 
     return parser.parse_args()
 
@@ -91,14 +93,17 @@ def main():
     encoder.eval()
 
     running_loss=None
-    running_class=None
-    running_slass=None
+    running_closs=None
+    running_sloss=None
 
     for epoch in range(args.epoch):
         progress_bar=tqdm(
             zip(content_dataloader,style_dataloader),
             total=min(len(content_dataloader),len(style_dataloader))
         )
+        running_loss=0
+        running_closs=0
+        running_sloss=0
 
         for content_batch,style_batch in progress_bar:
 
@@ -129,6 +134,28 @@ def main():
 
             optimizer.zero_grad()
             loss.backward()
+            optimizer.step()
+
+            progress_bar.set_description(f"Loss:{running_loss:4f},Content_loss:{running_closs:4f},Style_loss:{running_sloss:4f}")
+
+            running_loss+=loss.item()
+            running_closs+=loss_c.item()
+            running_sloss+=loss_s.item()
+
+        scheduler.step()
+
+        running_loss/=len(content_dataloader)
+        running_closs/=len(content_dataloader)
+        running_sloss/=len(style_dataloader)
+
+        if(epoch+1)%args.log_interval==0:
+            tqdm.write(f'Iter{epoch+1}:Loss:{running_loss:4f},Content_loss:{running_closs:4f},Style_loss:{running_sloss:4f}')
+
+
+
+
+        
+
 
 if __name__=='__main__':
     main()
