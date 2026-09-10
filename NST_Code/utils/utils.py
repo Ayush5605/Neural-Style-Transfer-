@@ -25,18 +25,17 @@ class ImageFolderDataset(Dataset):
         return image
 
 def get_transform(size,crop,final_size):
-        transform_list=[]
 
-        if size>0:
-            transform_list.append(transforms.Resize(size))
+    transform_list = []
 
-        if crop:
-            transform_list.append(transforms.RandomCrop(final_size))
+    transform_list.append(
+        transforms.Resize((final_size, final_size))
+    )
 
-        else:
-            transform_list.append(transforms.Resize(final_size))
+    transform_list.append(
+        transforms.ToTensor()
+    )
 
-        transform_list.append(transforms.ToTensor)
-        return transforms.Compose(transform_list)
+    return transforms.Compose(transform_list)
 
 

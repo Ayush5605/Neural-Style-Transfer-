@@ -5,32 +5,35 @@ from pathlib import Path
 from utils.utils import *
 from utils.models import *
 import torch.optim as optim
+from tqdm import tqdm
+
 def parse_arguments():
     parser=argparse.ArgumentParser()
 
     parser.add_argument('--content_dir',type=str,default=r'D:\Projects\Neural Style Transfer\NST_Code\content_data',
                         help='Location of content dataset')
     parser.add_argument('--style_dir',type=str,default=r'D:\Projects\Neural Style Transfer\NST_Code\style_data',
-                            help='Location of style dataset')
+                        help='Location of style dataset')
     parser.add_argument('--vgg',type=str,default=r'D:\Projects\Neural Style Transfer\NST_Code\vgg_normalised.pth',
-                            help='Location of pre-trained VGG')
+                        help='Location of pre-trained VGG')
     parser.add_argument('--experiment',type=str,default=r'experiment1',
-                            help='Name of experiment')
+                        help='Name of experiment')
     parser.add_argument('--final_size',type=int,default=512,
-                                help='Size of final image')
+                        help='Size of final image')
     parser.add_argument('--content_size',type=int,default=265,
-                                help='Size of content image')
+                        help='Size of content image')
     parser.add_argument('--style_size',type=int,default=256,
-                                help='Size of style image')
+                        help='Size of style image')
     parser.add_argument('--crop',action='store_true',default=True,
-                                help='Crop Image')
-    parser.add_argument('--batch_size', type=int, default=4,
+                        help='Crop Image')
+    parser.add_argument('--batch_size',type=int,default=4,
                         help='Batch size')
     parser.add_argument('--lr',type=float,default=1e-4,
                         help='Learning rate')
     parser.add_argument('--lr_decay',type=float,default=5e-5,
                         help="Learning rate decay")
-
+    parser.add_argument('--epoch',type=int,default=2,
+                        help="Number of epochs")
 
     return parser.parse_args()
 
@@ -45,11 +48,8 @@ def main():
         for key,value in vars(args).items():
             args_file.write(f'{key}:{value}\n')
 
-
     content_transform=get_transform(args.content_size,args.crop,args.final_size)
     style_transform=get_transform(args.style_size,args.crop,args.final_size)
-
-
 
     content_dataset=ImageFolderDataset(args.content_dir,content_transform)
     style_dataset=ImageFolderDataset(args.style_dir,style_transform)
@@ -63,12 +63,13 @@ def main():
     )
 
     style_dataloader=DataLoader(
-            style_dataset,
-            batch_size=args.batch_size,
-            shuffle=False,
-            pin_memory=True,
-            drop_last=True
-        )
+        style_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
+        pin_memory=True,
+        drop_last=True
+    )
+
     print("Number of batches in content dataset:",len(content_dataloader))
     print("Number of batches in style dataset:",len(style_dataloader))
 
@@ -81,15 +82,32 @@ def main():
         lr_lambda=lambda epoch: 1.0/(1.0+args.lr_decay*epoch)
     )
 
-    print("Training...")
+    mse_loss=torch.nn.MSELoss()
 
+    encoder.eval()
 
-    
-    
+    running_loss=None
+    running_class=None
+    running_slass=None
 
-   
+    for epoch in range(args.epoch):
+        progress_bar=tqdm(
+            zip(content_dataloader,style_dataloader),
+            total=min(len(content_dataloader),len(style_dataloader))
+        )
 
+        for content_batch,style_batch in progress_bar:
+
+            content_batch=content_batch.to(device)
+            style_batch=style_batch.to(device)
+
+            c_feats=encoder(content_batch)
+            s_feats=encoder(style_batch)
+
+            print(len(c_feats))
+            print(len(s_feats))
+
+            print(c_feats[0].shape)
 
 if __name__=='__main__':
     main()
-

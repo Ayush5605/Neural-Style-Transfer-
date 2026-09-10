@@ -146,7 +146,7 @@ class VGGEncoder(nn.Module):
         if is_test:
             return h4
 
-        return h1, h2, h3, h4
+        return [h1, h2, h3, h4]
 
 
 class Decoder(nn.Module):
