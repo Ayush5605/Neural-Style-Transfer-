@@ -40,6 +40,7 @@ def parse_arguments():
                         help='Style weight')
     parser.add_argument('--log_interval', type=int, default=1,
                         help='Log interval')
+    
 
     return parser.parse_args()
 
