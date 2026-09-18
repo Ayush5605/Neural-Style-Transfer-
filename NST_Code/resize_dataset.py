@@ -1,5 +1,6 @@
 from pathlib import Path
-from PIL import Image
+
+from PIL import Image, ImageFile
 from tqdm import tqdm
 
 
@@ -14,11 +15,14 @@ DATASETS = [
     Path(r"D:\Projects\NST_dataset\Style_dataset\test"),
 ]
 
-# Maximum width/height of an image after preprocessing
+# Maximum width/height after preprocessing
 MAX_SIZE = 2048
 
 # JPEG quality
 JPEG_QUALITY = 95
+
+# Allow PIL to detect/load truncated images
+ImageFile.LOAD_TRUNCATED_IMAGES = False
 
 
 # ============================================================
@@ -35,7 +39,14 @@ def process_image(image_path):
 
         with Image.open(image_path) as img:
 
+            # Force PIL to actually read the complete image.
+            # This helps detect truncated/corrupted files.
+            img.load()
+
+            # ------------------------------------------------
             # Convert to RGB
+            # ------------------------------------------------
+
             img = img.convert("RGB")
 
             original_width, original_height = img.size
@@ -60,15 +71,35 @@ def process_image(image_path):
             )
 
             # ------------------------------------------------
-            # Save back to same file
+            # Save resized image
             # ------------------------------------------------
 
-            img.save(
-                image_path,
-                "JPEG",
-                quality=JPEG_QUALITY,
-                optimize=True
-            )
+            # If the original is already JPEG, overwrite it.
+            # Otherwise create a JPEG version and remove the
+            # old file.
+
+            if image_path.suffix.lower() in [".jpg", ".jpeg"]:
+
+                img.save(
+                    image_path,
+                    "JPEG",
+                    quality=JPEG_QUALITY,
+                    optimize=True
+                )
+
+            else:
+
+                new_path = image_path.with_suffix(".jpg")
+
+                img.save(
+                    new_path,
+                    "JPEG",
+                    quality=JPEG_QUALITY,
+                    optimize=True
+                )
+
+                # Remove original file
+                image_path.unlink()
 
             return (
                 f"resized "
@@ -77,6 +108,15 @@ def process_image(image_path):
             )
 
     except Exception as e:
+
+        print(f"\n❌ Corrupted image: {image_path.name}")
+        print(f"   Error: {e}")
+
+        try:
+             image_path.unlink()
+             print("   🗑️ Image removed.")
+        except Exception as delete_error:
+              print(f"   ⚠️ Could not remove image: {delete_error}")
 
         return f"ERROR: {e}"
 
@@ -119,6 +159,12 @@ def process_dataset(dataset_path):
     unchanged = 0
     errors = 0
 
+    corrupted_files = []
+
+    # --------------------------------------------------------
+    # Process images
+    # --------------------------------------------------------
+
     for image_path in tqdm(images):
 
         result = process_image(image_path)
@@ -139,14 +185,41 @@ def process_dataset(dataset_path):
 
             errors += 1
 
-            print(
-                f"\n{image_path.name}: {result}"
+            corrupted_files.append(
+                (image_path, result)
             )
+
+            print(
+                f"\n❌ {image_path.name}: {result}"
+            )
+
+    # --------------------------------------------------------
+    # Results
+    # --------------------------------------------------------
 
     print("\nResults:")
     print(f"Unchanged : {unchanged}")
     print(f"Resized   : {resized}")
     print(f"Errors    : {errors}")
+
+    # --------------------------------------------------------
+    # Corrupted files
+    # --------------------------------------------------------
+
+    if corrupted_files:
+
+        print("\n" + "-" * 70)
+        print("CORRUPTED / INVALID IMAGES")
+        print("-" * 70)
+
+        for path, error in corrupted_files:
+
+            print(f"\nFile: {path}")
+            print(f"Error: {error}")
+
+    else:
+
+        print("\n✅ No corrupted images found.")
 
 
 # ============================================================
@@ -160,12 +233,16 @@ def main():
     print("=" * 70)
 
     print(
-        f"\nMaximum image dimension: {MAX_SIZE}x{MAX_SIZE}"
+        f"\nMaximum image dimension: "
+        f"{MAX_SIZE}x{MAX_SIZE}"
     )
 
     print(
-        "\nThe script will resize very large images "
-        "while preserving aspect ratio."
+        "\nThe script will:"
+        "\n1. Check images for corruption"
+        "\n2. Resize very large images"
+        "\n3. Preserve aspect ratio"
+        "\n4. Convert resized images to JPEG"
     )
 
     for dataset in DATASETS:

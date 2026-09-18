@@ -1,7 +1,9 @@
 from torch.utils.data import Dataset
 import os
-from PIL import Image
+from PIL import Image, ImageFile
 from torchvision import transforms
+
+ImageFile.LOAD_TRUNCATED_IMAGES=False
 
 
 class ImageFolderDataset(Dataset):
