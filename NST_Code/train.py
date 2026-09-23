@@ -176,6 +176,13 @@ def parse_arguments():
         help='Path to optimizer checkpoint'
     )
 
+    parser.add_argument(
+    '--start_epoch',
+    type=int,
+    default=0,
+    help='Epoch from which to resume training'
+)
+
     return parser.parse_args()
 
 
@@ -405,7 +412,7 @@ def main():
     # 15. Training loop
     # ==================================================
 
-    for epoch in range(args.epoch):
+    for epoch in range(args.start_epoch,args.epoch):
 
         decoder.train()
 
