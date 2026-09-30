@@ -2,21 +2,30 @@ import os
 
 import torch
 
-from flask import Flask, render_template, send_from_directory
+from flask import (
+    Flask,
+    render_template,
+    request,
+    send_from_directory
+)
 
 from flask_wtf import FlaskForm
 from flask_bootstrap import Bootstrap
 
 from werkzeug.utils import secure_filename
 
-from wtforms import FileField, SubmitField, FloatField, HiddenField
+from wtforms import (
+    FileField,
+    SubmitField,
+    FloatField,
+    HiddenField
+)
 
 from PIL import Image
 from torchvision import transforms
 
 from huggingface_hub import hf_hub_download
 
-# Import your existing AdaIN code
 from utils.models import VGGEncoder, Decoder
 from utils.utils import adaptive_instance_normalization
 
@@ -27,9 +36,16 @@ from utils.utils import adaptive_instance_normalization
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = "supersecretkey"
+app.config["SECRET_KEY"] = os.environ.get(
+    "SECRET_KEY",
+    "dev-secret-key"
+)
 
-app.config["UPLOAD_FOLDER"] = "static/uploads"
+app.config["UPLOAD_FOLDER"] = os.path.join(
+    app.root_path,
+    "static",
+    "uploads"
+)
 
 app.config["ALLOWED_EXTENSIONS"] = {
     "png",
@@ -39,7 +55,10 @@ app.config["ALLOWED_EXTENSIONS"] = {
 
 Bootstrap(app)
 
-os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+os.makedirs(
+    app.config["UPLOAD_FOLDER"],
+    exist_ok=True
+)
 
 
 # ============================================================
@@ -72,7 +91,15 @@ device = torch.device(
     "cuda" if torch.cuda.is_available() else "cpu"
 )
 
+print("=" * 60)
 print(f"Using device: {device}")
+
+if torch.cuda.is_available():
+    print(f"GPU: {torch.cuda.get_device_name(0)}")
+else:
+    print("Running on CPU")
+
+print("=" * 60)
 
 
 # ============================================================
@@ -169,6 +196,10 @@ def style_transfer(
     device
 ):
 
+    # --------------------------------------------------------
+    # Image transformations
+    # --------------------------------------------------------
+
     content_transform = transforms.Compose([
         transforms.Resize(512),
         transforms.ToTensor()
@@ -179,7 +210,10 @@ def style_transfer(
         transforms.ToTensor()
     ])
 
+    # --------------------------------------------------------
     # Convert images to tensors
+    # --------------------------------------------------------
+
     content_image = content_transform(
         content_image
     ).unsqueeze(0).to(device)
@@ -188,7 +222,10 @@ def style_transfer(
         style_image
     ).unsqueeze(0).to(device)
 
+    # --------------------------------------------------------
     # Perform inference
+    # --------------------------------------------------------
+
     with torch.no_grad():
 
         # Extract content features
@@ -251,11 +288,8 @@ def index():
     form = UploadForm()
 
     result_image = None
-
     content_filename = None
-
     style_filename = None
-
     error = None
 
     if form.validate_on_submit():
@@ -361,6 +395,12 @@ def index():
                     form.alpha.data
                 )
 
+                # Keep alpha in valid range
+                alpha = max(
+                    0.0,
+                    min(1.0, alpha)
+                )
+
 
                 # Perform NST
                 stylized_image = style_transfer(
@@ -399,14 +439,15 @@ def index():
 
             except Exception as e:
 
-                error = str(e)
+                print(
+                    f"Style transfer error: {e}"
+                )
 
+                error = str(e)
 
     else:
 
-        # Only show errors when form submission
-        # was attempted or files are missing
-
+        # Show errors when POST was attempted
         if request.method == "POST":
 
             if not content_filename:
@@ -453,7 +494,10 @@ def send_image(filename):
 def send_example(filename):
 
     return send_from_directory(
-        "examples",
+        os.path.join(
+            app.root_path,
+            "examples"
+        ),
         filename
     )
 
@@ -463,8 +507,14 @@ def send_example(filename):
 # ============================================================
 
 if __name__ == "__main__":
+
     app.run(
         host="0.0.0.0",
-        port=int(os.environ.get("PORT", 10000)),
+        port=int(
+            os.environ.get(
+                "PORT",
+                10000
+            )
+        ),
         debug=False
     )
