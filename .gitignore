@@ -1,4 +1,5 @@
 /NST_Code/experiment/
+/NST_Code/vgg_normalised.pth
 
 # ==============================
 # Python virtual environments
@@ -45,11 +46,11 @@ optimizer_*.pth
 # ==============================
 # Generated output images
 # ==============================
-NST_Code/output/
-NST_Code/outputs/
-NST_Code/*.jpg
-NST_Code/*.jpeg
-NST_Code/*.png
+/NST_Code/output/
+/NST_Code/outputs/
+/NST_Code/*.jpg
+/NST_Code/*.jpeg
+/NST_Code/*.png
 
 # ==============================
 # Logs
