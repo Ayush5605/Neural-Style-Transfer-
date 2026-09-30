@@ -1,78 +1,32 @@
-/NST_Code/experiment/
-/NST_Code/vgg_normalised.pth
-
-# ==============================
-# Python virtual environments
-# ==============================
+# Python environments
 .venv/
 venv/
 .venvNST_Code/
 
-# ==============================
 # Python cache
-# ==============================
 __pycache__/
-*.py[cod]
-*$py.class
+*.pyc
 
-# ==============================
-# Jupyter / IPython
-# ==============================
-.ipynb_checkpoints/
-
-# ==============================
 # Training datasets
-# ==============================
-NST_Code/content_data/
-NST_Code/style_data/
+/NST_Code/content_data/
+/NST_Code/style_data/
 
-# ==============================
 # Training experiments
-# ==============================
-NST_Code/experiment/
+/NST_Code/experiment/
 
-# ==============================
-# Model / checkpoint files
-# ==============================
+# Model files
 *.pth
 *.pt
 *.ckpt
 
-# ==============================
-# Optimizer checkpoints
-# ==============================
-optimizer_*.pth
+# Hugging Face model staging folder
+/hugging_face_model/
+/NST_Code/vgg_normalised.pth
 
-# ==============================
-# Generated output images
-# ==============================
-/NST_Code/output/
-/NST_Code/outputs/
-/NST_Code/*.jpg
-/NST_Code/*.jpeg
-/NST_Code/*.png
 
-# ==============================
-# Logs
-# ==============================
-*.log
-
-# ==============================
-# OS files
-# ==============================
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# ==============================
 # IDE
-# ==============================
 .vscode/
 .idea/
 
-# ==============================
-# Environment / secrets
-# ==============================
+# Environment variables
 .env
-.env.*
-!.env.example
