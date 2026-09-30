@@ -1,1 +1,77 @@
 /NST_Code/experiment/
+
+# ==============================
+# Python virtual environments
+# ==============================
+.venv/
+venv/
+.venvNST_Code/
+
+# ==============================
+# Python cache
+# ==============================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==============================
+# Jupyter / IPython
+# ==============================
+.ipynb_checkpoints/
+
+# ==============================
+# Training datasets
+# ==============================
+NST_Code/content_data/
+NST_Code/style_data/
+
+# ==============================
+# Training experiments
+# ==============================
+NST_Code/experiment/
+
+# ==============================
+# Model / checkpoint files
+# ==============================
+*.pth
+*.pt
+*.ckpt
+
+# ==============================
+# Optimizer checkpoints
+# ==============================
+optimizer_*.pth
+
+# ==============================
+# Generated output images
+# ==============================
+NST_Code/output/
+NST_Code/outputs/
+NST_Code/*.jpg
+NST_Code/*.jpeg
+NST_Code/*.png
+
+# ==============================
+# Logs
+# ==============================
+*.log
+
+# ==============================
+# OS files
+# ==============================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==============================
+# IDE
+# ==============================
+.vscode/
+.idea/
+
+# ==============================
+# Environment / secrets
+# ==============================
+.env
+.env.*
+!.env.example

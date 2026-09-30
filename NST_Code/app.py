@@ -143,9 +143,8 @@ def send_example(filename):
 
 
 if __name__ == '__main__':
-    from werkzeug.serving import run_simple
-    run_simple('localhost', 5000, app, use_reloader=True, use_debugger=True)
-
+   if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False)
 
 
 
