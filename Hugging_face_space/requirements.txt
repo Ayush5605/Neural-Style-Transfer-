@@ -1,0 +1,7 @@
+gradio
+Pillow==12.2.0
+
+torch==2.12.1
+torchvision==0.27.1
+
+huggingface_hub==1.23.0
